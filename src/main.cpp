@@ -9,6 +9,24 @@ const int HEIGHT = 1080;
 const int CELL_SIZE = 10;
 const int CELL_PADDING = 4;
 
+const size_t CELL_COUNT_X = (WIDTH + CELL_PADDING) / (CELL_SIZE + CELL_PADDING);
+const size_t CELL_COUNT_Y = (HEIGHT + CELL_PADDING) / (CELL_SIZE + CELL_PADDING);
+const size_t WINDOW_PADDING_LEFT = (WIDTH - (CELL_SIZE + CELL_PADDING) * CELL_COUNT_X) / 2;
+const size_t WINDOW_PADDING_TOP = (HEIGHT - (CELL_SIZE + CELL_PADDING) * CELL_COUNT_Y) / 2;
+
+struct Cell
+{
+    double color; // hue, 0-360 degrees
+
+    bool alive_now;
+    bool alive_next_tick;
+};
+
+typedef Cell CellRow[CELL_COUNT_X];
+typedef CellRow CellBoard[CELL_COUNT_Y];
+
+CellBoard board;
+
 void fatal_error(const char *reason)
 {
     std::cerr << std::endl
@@ -26,6 +44,8 @@ SDL_Event e;
 
 int main(int argc, char const *argv[])
 {
+    srand(time(NULL));
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fatal_error(SDL_GetError());
     }
@@ -41,9 +61,12 @@ int main(int argc, char const *argv[])
     SDL_Texture *texture;
     SDL_Surface *surface;
 
-    if (SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, SDL_WINDOW_FULLSCREEN, &window, &renderer) != 0) {
+    if (SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_INPUT_GRABBED, &window, &renderer) != 0) {
         fatal_error(SDL_GetError());
     }
+
+    SDL_RaiseWindow(window);
+    SDL_ShowCursor(SDL_DISABLE);
 
     texture = SDL_CreateTexture(renderer,
                                 SDL_PIXELFORMAT_ARGB8888,
@@ -90,25 +113,33 @@ int main(int argc, char const *argv[])
         }
 
         SDL_FillRect(surface, NULL, 0);
-
-        const size_t cell_count_x = (WIDTH + CELL_PADDING) / (CELL_SIZE + CELL_PADDING);
-        const size_t cell_count_y = (HEIGHT + CELL_PADDING) / (CELL_SIZE + CELL_PADDING);
-        const size_t padding_left = (WIDTH - (CELL_SIZE + CELL_PADDING) * cell_count_x) / 2;
-        const size_t padding_top = (HEIGHT - (CELL_SIZE + CELL_PADDING) * cell_count_y) / 2;
         
         SDL_Rect cell_rect;
         cell_rect.w = CELL_SIZE;
         cell_rect.h = CELL_SIZE;
 
-        for(size_t y = 0; y < cell_count_y; y++)
+        for (size_t y = 0; y < CELL_COUNT_Y; y++)
         {
-            for(size_t x = 0; x < cell_count_x; x++)
+            for (size_t x = 0; x < CELL_COUNT_X; x++)
             {
-                cell_rect.x = padding_left + x * (CELL_SIZE + CELL_PADDING) + CELL_PADDING / 2;
-                cell_rect.y = padding_top + y * (CELL_SIZE + CELL_PADDING) + CELL_PADDING / 2;
+                board[y][x].alive_now = rand() % 3 == 0;
+                board[y][x].color = rand() % 360;
+            }
+        }
+
+        for(size_t y = 0; y < CELL_COUNT_Y; y++)
+        {
+            for(size_t x = 0; x < CELL_COUNT_X; x++)
+            {
+                if (!board[y][x].alive_now) {
+                    continue;
+                }
+
+                cell_rect.x = WINDOW_PADDING_LEFT + x * (CELL_SIZE + CELL_PADDING) + CELL_PADDING / 2;
+                cell_rect.y = WINDOW_PADDING_TOP + y * (CELL_SIZE + CELL_PADDING) + CELL_PADDING / 2;
 
                 HSV hsv;
-                hsv.h = rand() % 360;
+                hsv.h = board[y][x].color;
                 hsv.s = 0.7;
                 hsv.v = 0.7;
 
@@ -122,7 +153,7 @@ int main(int argc, char const *argv[])
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(1000);
+        SDL_Delay(100);
     }
 
     SDL_DestroyWindow(window);
