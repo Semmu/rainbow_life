@@ -2,8 +2,12 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+#include "util.h"
+
 const int WIDTH = 1920;
 const int HEIGHT = 1080;
+const int CELL_SIZE = 10;
+const int CELL_PADDING = 4;
 
 void fatal_error(const char *reason)
 {
@@ -85,13 +89,40 @@ int main(int argc, char const *argv[])
             }
         }
 
-        SDL_FillRect(surface, NULL, SDL_makeColor(rand() % 255, 0, 0));
+        SDL_FillRect(surface, NULL, 0);
+
+        const size_t cell_count_x = (WIDTH + CELL_PADDING) / (CELL_SIZE + CELL_PADDING);
+        const size_t cell_count_y = (HEIGHT + CELL_PADDING) / (CELL_SIZE + CELL_PADDING);
+        const size_t padding_left = (WIDTH - (CELL_SIZE + CELL_PADDING) * cell_count_x) / 2;
+        const size_t padding_top = (HEIGHT - (CELL_SIZE + CELL_PADDING) * cell_count_y) / 2;
+        
+        SDL_Rect cell_rect;
+        cell_rect.w = CELL_SIZE;
+        cell_rect.h = CELL_SIZE;
+
+        for(size_t y = 0; y < cell_count_y; y++)
+        {
+            for(size_t x = 0; x < cell_count_x; x++)
+            {
+                cell_rect.x = padding_left + x * (CELL_SIZE + CELL_PADDING) + CELL_PADDING / 2;
+                cell_rect.y = padding_top + y * (CELL_SIZE + CELL_PADDING) + CELL_PADDING / 2;
+
+                HSV hsv;
+                hsv.h = rand() % 360;
+                hsv.s = 0.7;
+                hsv.v = 0.7;
+
+                RGB rgb = HSV2RGB(hsv);
+
+                SDL_FillRect(surface, &cell_rect, SDL_makeColor(rgb.r * 255, rgb.g * 255, rgb.b * 255));
+            }
+        }
 
         SDL_UpdateTexture(texture, NULL, surface->pixels, surface->pitch);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(100);
+        SDL_Delay(1000);
     }
 
     SDL_DestroyWindow(window);
