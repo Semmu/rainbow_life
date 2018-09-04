@@ -1,6 +1,10 @@
 #ifndef LOG_HPP
 #define LOG_HPP
 
+#include <iostream>
+#include <chrono>
+#include <iomanip>
+
 template <typename subject_type>
 void _log(subject_type subject)
 {
