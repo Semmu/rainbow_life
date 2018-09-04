@@ -32,6 +32,9 @@ int main(int argc, char const *argv[])
     RainbowLife::Window window;
     RainbowLife::Board board(window.getSurface(), 192, 80, 6);
 
+    bool simulate{true};
+    size_t tick_gap{20}, tick_gap_counter{0};
+
     while (running)
     {
         while (SDL_PollEvent(&e))
@@ -48,7 +51,23 @@ int main(int argc, char const *argv[])
                         } break;
 
                         case SDLK_t: {
-                            //board.tick();
+                            board.tick();
+                        } break;
+
+                        case SDLK_r: {
+                            board.randomize(5);
+                        } break;
+
+                        case SDLK_a: {
+                            simulate = !simulate;
+                        } break;
+
+                        case SDLK_f: {
+                            tick_gap = tick_gap - 1 > 0 ? tick_gap - 1 : 1;
+                        } break;
+
+                        case SDLK_s: {
+                            tick_gap = tick_gap + 1 < 50 ? tick_gap + 1 : 50;
                         } break;
 
                         case SDLK_ESCAPE: {
@@ -68,7 +87,15 @@ int main(int argc, char const *argv[])
             }
         }
 
-        //board.render();
+        if (simulate) {
+            tick_gap_counter++;
+            if (tick_gap_counter > tick_gap) {
+                tick_gap_counter = 0;
+                board.tick();
+            }
+        }
+
+        board.render();
 
         SDL_Rect mouse_rect;
         mouse_rect.x = mouseX;
@@ -78,7 +105,7 @@ int main(int argc, char const *argv[])
 
         window.update();
 
-        SDL_Delay(10);
+        SDL_Delay(1);
     }
 
     window.~Window();
