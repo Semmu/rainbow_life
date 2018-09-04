@@ -23,7 +23,9 @@ int main(int argc, char const *argv[])
         throw std::runtime_error(TTF_GetError());
     }
 
-    atexit(SDL_Quit);
+    atexit([]() {
+        SDL_Quit();
+    });
 
     size_t mouseX{0}, mouseY{0};
 
