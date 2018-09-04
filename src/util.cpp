@@ -1,5 +1,9 @@
 #include "util.h"
 
+Uint32 SDL_makeColor(Uint8 r, Uint8 g, Uint8 b) {
+    return (r << 16) | (g << 8) | (b << 0);
+}
+
 HSV RGB2HSV(RGB in)
 {
     HSV out;

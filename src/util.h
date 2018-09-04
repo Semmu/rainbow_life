@@ -1,6 +1,10 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <SDL2/SDL.h>
+
+Uint32 SDL_makeColor(Uint8 r, Uint8 g, Uint8 b);
+
 typedef struct
 {
     double r; // a fraction between 0 and 1
