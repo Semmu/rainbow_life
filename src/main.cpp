@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
     size_t mouseX{0}, mouseY{0};
 
     RainbowLife::Window window;
-    RainbowLife::Board board(window.getSurface(), 192, 80, 6);
+    RainbowLife::Board board(window.getSurface(), 200, 200, 2);
 
     bool simulate{true};
     size_t tick_gap{20}, tick_gap_counter{0};

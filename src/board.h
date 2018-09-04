@@ -29,6 +29,9 @@ namespace RainbowLife {
         std::vector<std::vector<Cell>> table;
         Cell nullCell;
 
+        // mutation on cell birth
+        const double max_cell_mutation = 0.05;
+
     public:
         Board(SDL_Surface *destination_surface, size_t table_width, size_t table_height, size_t cell_padding = 4);
 

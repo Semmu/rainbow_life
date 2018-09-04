@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include "board.h"
 #include "util.h"
+#include "log.hpp"
 
 namespace RainbowLife {
 
@@ -13,8 +14,7 @@ namespace RainbowLife {
         table(table_height, std::vector<Cell>(table_width, nullCell)),
         nullCell{0.0, false, false}
     {
-        if (static_cast<int>(table_width * (1 + cell_padding) - cell_padding) > destination_surface->w)
-        {
+        if (static_cast<int>(table_width * (1 + cell_padding) - cell_padding) > destination_surface->w) {
             throw std::runtime_error(::std::string("Insufficent surface width for cell table!\n") +
                                      "    - surface width: " + std::to_string(destination_surface->w) + "px\n" +
                                      "    - table width: " + std::to_string(table_width) + "\n" +
@@ -22,8 +22,7 @@ namespace RainbowLife {
                                      "    - required surface width: " + std::to_string(table_width * (1 + cell_padding) - cell_padding) + "px\n");
         }
 
-        if (static_cast<int>(table_height * (1 + cell_padding) - cell_padding) > destination_surface->h)
-        {
+        if (static_cast<int>(table_height * (1 + cell_padding) - cell_padding) > destination_surface->h) {
             throw std::runtime_error(std::string("Insufficent surface height for cell table!\n") +
                                      "    - surface height: " + std::to_string(destination_surface->h) + "px\n" +
                                      "    - table height: " + std::to_string(table_height) + "\n" +
@@ -45,12 +44,9 @@ namespace RainbowLife {
         randomize(5);
     }
 
-    void Board::randomize(size_t ratio)
-    {
-        for (size_t y = 0; y < table_height; y++)
-        {
-            for (size_t x = 0; x < table_width; x++)
-            {
+    void Board::randomize(size_t ratio) {
+        for (size_t y = 0; y < table_height; y++) {
+            for (size_t x = 0; x < table_width; x++) {
                 cell(x, y).alive_now = rand() % ratio == 0;
                 cell(x, y).color = static_cast<double>(rand()) / RAND_MAX;
             }
@@ -58,28 +54,23 @@ namespace RainbowLife {
     }
 
     // cell selection with coordinates
-    Board::Cell& Board::cell(int x, int y)
-    {
+    Board::Cell& Board::cell(int x, int y) {
         // bounds check
-        if (x < 0 || x > static_cast<int>(table_width - 1) || y < 0 || y > static_cast<int>(table_height - 1))
-        {
+        if (x < 0 || x > static_cast<int>(table_width - 1) || y < 0 || y > static_cast<int>(table_height - 1)) {
             return nullCell;
         }
 
         return table[y][x];
     }
 
-    Board::Cell& Board::operator()(int x, int y)
-    {
+    Board::Cell& Board::operator()(int x, int y) {
         return cell(x, y);
     }
 
     void Board::tick()
     {
-        for (int y = 0; y < static_cast<int>(table_height); y++)
-        {
-            for (int x = 0; x < static_cast<int>(table_width); x++)
-            {
+        for (int y = 0; y < static_cast<int>(table_height); y++) {
+            for (int x = 0; x < static_cast<int>(table_width); x++) {
                 size_t neighbours_alive = cell(x - 1, y - 1).alive_now +
                                           cell(x - 1, y).alive_now +
                                           cell(x - 1, y + 1).alive_now +
@@ -89,40 +80,70 @@ namespace RainbowLife {
                                           cell(x + 1, y).alive_now +
                                           cell(x + 1, y + 1).alive_now;
 
-                if (cell(x, y).alive_now)
-                {
+                if (cell(x, y).alive_now) {
                     cell(x, y).alive_next_tick = (neighbours_alive == 2 || neighbours_alive == 3);
-                }
-                else
-                {
+                } else {
                     cell(x, y).alive_next_tick = (neighbours_alive == 3);
+                    if (cell(x, y).alive_next_tick) {
+                        double inherited_color = 0.0;
+
+                        if(cell(x - 1, y - 1).alive_now) {
+                            inherited_color += cell(x - 1, y - 1).color;
+                        }
+                        if(cell(x - 1, y).alive_now) {
+                            inherited_color += cell(x - 1, y).color;
+                        }
+                        if(cell(x - 1, y + 1).alive_now) {
+                            inherited_color += cell(x - 1, y + 1).color;
+                        }
+                        if(cell(x, y - 1).alive_now) {
+                            inherited_color += cell(x, y - 1).color;
+                        }
+                        if(cell(x, y + 1).alive_now) {
+                            inherited_color += cell(x, y + 1).color;
+                        }
+                        if(cell(x + 1, y - 1).alive_now) {
+                            inherited_color += cell(x + 1, y - 1).color;
+                        }
+                        if(cell(x + 1, y).alive_now) {
+                            inherited_color += cell(x + 1, y).color;
+                        }
+                        if(cell(x + 1, y + 1).alive_now) {
+                            inherited_color += cell(x + 1, y + 1).color;
+                        }
+
+                        // random mutation in any direction
+                        double mutation = max_cell_mutation * rand() / RAND_MAX - ( max_cell_mutation / 2 );
+                        inherited_color = inherited_color / neighbours_alive + mutation;
+
+                        // ensuring the color is in the 0..1 interval
+                        while (inherited_color > 1) {
+                            inherited_color -= 1;
+                        }
+
+                        cell(x, y).color = inherited_color;
+                    }
                 }
             }
         }
 
-        for (int y = 0; y < static_cast<int>(table_height); y++)
-        {
-            for (int x = 0; x < static_cast<int>(table_width); x++)
-            {
+        for (int y = 0; y < static_cast<int>(table_height); y++) {
+            for (int x = 0; x < static_cast<int>(table_width); x++) {
                 cell(x, y).alive_now = cell(x, y).alive_next_tick;
             }
         }
     }
 
-    void Board::render()
-    {
+    void Board::render() {
         SDL_FillRect(destination_surface, NULL, 0);
 
         SDL_Rect cell_rect;
         cell_rect.w = cell_size;
         cell_rect.h = cell_size;
 
-        for (size_t y = 0; y < table_height; y++)
-        {
-            for (size_t x = 0; x < table_width; x++)
-            {
-                if (!cell(x, y).alive_now)
-                {
+        for (size_t y = 0; y < table_height; y++) {
+            for (size_t x = 0; x < table_width; x++) {
+                if (!cell(x, y).alive_now) {
                     continue;
                 }
 
@@ -136,7 +157,7 @@ namespace RainbowLife {
 
                 RGB rgb = HSV2RGB(hsv);
 
-                SDL_FillRect(destination_surface, &cell_rect, SDL_makeColor(rgb.r * 255, rgb.g * 255, rgb.b * 255));
+                SDL_FillRect(destination_surface, &cell_rect, SDL_MapRGB(destination_surface->format, rgb.r * 255, rgb.g * 255, rgb.b * 255));
             }
         }
     }
