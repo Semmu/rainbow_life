@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
         mouse_rect.w = mouse_rect.h = 20;
         SDL_FillRect(window.getSurface(), &mouse_rect, SDL_makeColor(255, 255, 255));
 
-        window.render();
+        window.update();
 
         SDL_Delay(10);
     }
