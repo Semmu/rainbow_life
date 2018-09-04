@@ -19,12 +19,14 @@ make
 
 (for my own notes)
 
-* Window class, fake fullscreen window, correct size identification (for multimonitor systems)
 * cell selection on mouse hover
 * cell toggling with cursor click
 * toggle board wrap
-* render board in pattern if wrap is enable
-* auto simulation with changeable speed
+* render board in pattern if wrap is enabled
+* usage screen (which button does what), status display (speed, size, etc)
+* better game loop (tie to fps)
+* cell and board "rework" (cells shouldnt next tick state, there should be 2 boards instead, switching active and next on tick)
+* board constructor rework (get surface, cell padding and cell size, should fill surface with as many cells as possible)
 
 ## License
 
