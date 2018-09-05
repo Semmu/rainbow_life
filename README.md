@@ -24,7 +24,6 @@ make
 * toggle board wrap
 * render board in pattern if wrap is enabled
 * usage screen (which button does what), status display (speed, size, etc)
-* better game loop (tie to fps)
 * cell and board "rework" (cells shouldnt next tick state, there should be 2 boards instead, switching active and next on tick) (a basic test version of this did not perform better, should figure out more ways to optimize, for example with a precomputed color map)
 * board constructor rework (2 ways to initialize board: give surface, cell size and cell padding -> fill with as many as possible || or give surface, table dimensions and cell padding -> compute biggest cell size)
 * multithread support for simulation (and rendering?)

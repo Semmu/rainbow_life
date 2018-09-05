@@ -10,9 +10,6 @@
 
 int main(int argc, char const *argv[])
 {
-    bool running = true;
-    SDL_Event e;
-
     srand(time(NULL));
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -27,13 +24,17 @@ int main(int argc, char const *argv[])
         SDL_Quit();
     });
 
-    size_t mouseX{0}, mouseY{0};
-
     RainbowLife::Window window;
-    RainbowLife::Board board(window.getSurface(), 200, 200, 2);
+    RainbowLife::Board board(window.getSurface(), 192, 108, 4);
 
+    bool running = true;
+    SDL_Event e;
+    size_t mouseX{0}, mouseY{0};
     bool simulate{true};
-    size_t tick_gap{20}, tick_gap_counter{0};
+    int latest_simulation = SDL_GetTicks(),
+        simulation_gap = 100;
+    const int max_simulation_gap = 1000,
+              simulation_gap_delta = 20;
 
     while (running)
     {
@@ -63,11 +64,11 @@ int main(int argc, char const *argv[])
                         } break;
 
                         case SDLK_f: {
-                            tick_gap = tick_gap - 1 > 0 ? tick_gap - 1 : 1;
+                            simulation_gap = simulation_gap - simulation_gap_delta > 0 ? simulation_gap - simulation_gap_delta : 1;
                         } break;
 
                         case SDLK_s: {
-                            tick_gap = tick_gap + 1 < 50 ? tick_gap + 1 : 50;
+                            simulation_gap = simulation_gap + simulation_gap_delta < max_simulation_gap ? simulation_gap + simulation_gap_delta : max_simulation_gap;
                         } break;
 
                         case SDLK_ESCAPE: {
@@ -88,10 +89,9 @@ int main(int argc, char const *argv[])
         }
 
         if (simulate) {
-            tick_gap_counter++;
-            if (tick_gap_counter > tick_gap) {
-                tick_gap_counter = 0;
+            if (static_cast<int>(SDL_GetTicks()) - latest_simulation > simulation_gap) {
                 board.tick();
+                latest_simulation = SDL_GetTicks();
             }
         }
 
@@ -101,7 +101,7 @@ int main(int argc, char const *argv[])
         mouse_rect.x = mouseX;
         mouse_rect.y = mouseY;
         mouse_rect.w = mouse_rect.h = 20;
-        SDL_FillRect(window.getSurface(), &mouse_rect, SDL_makeColor(255, 255, 255));
+        //SDL_FillRect(window.getSurface(), &mouse_rect, SDL_makeColor(255, 255, 255));
 
         window.update();
 
