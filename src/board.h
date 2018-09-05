@@ -32,6 +32,10 @@ namespace RainbowLife {
         // mutation on cell birth
         const double max_cell_mutation = 0.05;
 
+        // precomputed color table for hues
+        const size_t precomputed_colors = 100; 
+        std::vector<Uint32> color_table;
+
     public:
         Board(SDL_Surface *destination_surface, size_t table_width, size_t table_height, size_t cell_padding = 4);
 

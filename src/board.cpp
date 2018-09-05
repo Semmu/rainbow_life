@@ -42,6 +42,24 @@ namespace RainbowLife {
         padding_left = (destination_surface->w - (table_width * (cell_size + cell_padding) - cell_padding)) / 2;
 
         randomize(5);
+
+        // color table precomputation
+        color_table.reserve(precomputed_colors);
+        HSV hsv;
+        RGB rgb;
+        for (size_t i = 0; i < precomputed_colors; i++)
+        {
+            double hue = 1.0 * i / precomputed_colors;
+
+            hsv.h = hue * 360;
+            hsv.s = 0.7;
+            hsv.v = 0.7;
+
+            rgb = HSV2RGB(hsv);
+
+            color_table[i] = SDL_MapRGB(destination_surface->format, rgb.r * 255, rgb.g * 255, rgb.b * 255);
+        }
+        
     }
 
     void Board::randomize(size_t ratio) {
@@ -146,14 +164,9 @@ namespace RainbowLife {
                 cell_rect.x = padding_left + x * (cell_size + cell_padding);
                 cell_rect.y = padding_top + y * (cell_size + cell_padding);
 
-                HSV hsv;
-                hsv.h = cell(x, y).color * 360;
-                hsv.s = 0.7;
-                hsv.v = 0.7;
+                size_t color_index = cell(x, y).color * precomputed_colors;
 
-                RGB rgb = HSV2RGB(hsv);
-
-                SDL_FillRect(destination_surface, &cell_rect, SDL_MapRGB(destination_surface->format, rgb.r * 255, rgb.g * 255, rgb.b * 255));
+                SDL_FillRect(destination_surface, &cell_rect, color_table[color_index]);
             }
         }
     }
