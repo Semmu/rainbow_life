@@ -12,7 +12,8 @@ namespace RainbowLife {
         table_height(table_height),
         cell_padding(cell_padding),
         table(table_height, std::vector<Cell>(table_width, nullCell)),
-        nullCell{0.0, false, false}
+        nullCell{0.0, false, false},
+        hoveredCell{&nullCell}
     {
         if (static_cast<int>(table_width * (1 + cell_padding) - cell_padding) > destination_surface->w) {
             throw std::runtime_error(::std::string("Insufficent surface width for cell table!\n") +
@@ -59,7 +60,9 @@ namespace RainbowLife {
 
             color_table[i] = SDL_MapRGB(destination_surface->format, rgb.r * 255, rgb.g * 255, rgb.b * 255);
         }
-        
+
+        color_white = SDL_MapRGB(destination_surface->format, 255, 255, 255);
+        color_black = SDL_MapRGB(destination_surface->format, 0, 0, 0);
     }
 
     void Board::randomize(size_t ratio) {
@@ -148,25 +151,52 @@ namespace RainbowLife {
         }
     }
 
+    void Board::setMouseCoordinates(size_t x, size_t y) {
+        if (x > padding_left &&
+            x < destination_surface->w - padding_left &&
+            y > padding_top &&
+            y < destination_surface->h - padding_top) {
+
+            size_t x_index, y_index;
+            x_index = (x - padding_left) / (cell_size + cell_padding);
+            y_index = (y - padding_top) / (cell_size + cell_padding);
+
+            hoveredCell = &cell(x_index, y_index);
+
+        } else {
+            hoveredCell = &nullCell;
+        }
+    }
+
     void Board::render() {
         SDL_FillRect(destination_surface, NULL, 0);
 
-        SDL_Rect cell_rect;
-        cell_rect.w = cell_size;
-        cell_rect.h = cell_size;
+        Uint32 cell_color, highlight_color;
+        size_t color_index;
+        SDL_Rect cell_rect, highlight_rect;
+        cell_rect.w = cell_rect.h = cell_size;
+        highlight_rect.w = highlight_rect.h = cell_size + 2;
 
         for (size_t y = 0; y < table_height; y++) {
             for (size_t x = 0; x < table_width; x++) {
-                if (!cell(x, y).alive_now) {
-                    continue;
-                }
-
                 cell_rect.x = padding_left + x * (cell_size + cell_padding);
                 cell_rect.y = padding_top + y * (cell_size + cell_padding);
+                highlight_rect.x = cell_rect.x - 1;
+                highlight_rect.y = cell_rect.y - 1;
 
-                size_t color_index = cell(x, y).color * precomputed_colors;
+                color_index = cell(x, y).color * precomputed_colors;
+                if (cell(x, y).alive_now) {
+                    cell_color = color_table[color_index];
+                    highlight_color = color_white;
+                } else {
+                    cell_color = color_black;
+                    highlight_color = color_table[color_index];
+                }
 
-                SDL_FillRect(destination_surface, &cell_rect, color_table[color_index]);
+                if (hoveredCell == &cell(x, y)) {
+                    SDL_FillRect(destination_surface, &highlight_rect, highlight_color);
+                }
+                SDL_FillRect(destination_surface, &cell_rect, cell_color);
             }
         }
     }

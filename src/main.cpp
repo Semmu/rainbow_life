@@ -85,6 +85,7 @@ int main(int argc, char const *argv[])
                 case SDL_MOUSEMOTION: {
                     mouseX = e.motion.x;
                     mouseY = e.motion.y;
+                    board.setMouseCoordinates(mouseX, mouseY);
                 } break;
 
                 default: break;
@@ -103,13 +104,13 @@ int main(int argc, char const *argv[])
 
 
         SDL_Rect mouse_rect;
-        mouse_rect.x = mouseX;
-        mouse_rect.y = mouseY;
-        mouse_rect.w = mouse_rect.h = 20;
-        //SDL_FillRect(window.getSurface(), &mouse_rect, SDL_makeColor(255, 255, 255));
+        mouse_rect.x = mouseX - 2;
+        mouse_rect.y = mouseY - 2;
+        mouse_rect.w = mouse_rect.h = 4;
 
         // timer.start();
         board.render();
+        //SDL_FillRect(window.getSurface(), &mouse_rect, SDL_makeColor(255, 255, 255));
         window.update();
         // timer.stop();
         // log("render took ", timer.duration(), "ms");
