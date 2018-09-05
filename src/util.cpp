@@ -110,3 +110,30 @@ RGB HSV2RGB(HSV in)
     }
     return out;
 }
+
+double from_0_to_1(double value) {
+    double result = value;
+
+    while (result > 1) {
+        result -= 1.0;
+    }
+    while (result < 0) {
+        result += 1.0;
+    }
+
+    return result;
+}
+
+double average_hue(double hue1, double hue2)
+{
+    double average = (hue1 + hue2) / 2;
+
+    // if they are too apart, we will have to "mirror" the result by adding 0.5
+    // since we are in a 0..1 interval, adding 0.5 mirrors it
+    // (think of this interval as a circle)
+    if ((hue1 - hue2) > 0.5 || (hue1 - hue2) < -0.5) {
+        average += 0.5;
+    }
+
+    return from_0_to_1(average);
+}

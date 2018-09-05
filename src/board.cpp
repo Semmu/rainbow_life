@@ -85,41 +85,37 @@ namespace RainbowLife {
                 } else {
                     cell(x, y).alive_next_tick = (neighbours_alive == 3);
                     if (cell(x, y).alive_next_tick) {
-                        double inherited_color = 0.0;
 
-                        if(cell(x - 1, y - 1).alive_now) {
-                            inherited_color += cell(x - 1, y - 1).color;
-                        }
-                        if(cell(x - 1, y).alive_now) {
-                            inherited_color += cell(x - 1, y).color;
-                        }
-                        if(cell(x - 1, y + 1).alive_now) {
-                            inherited_color += cell(x - 1, y + 1).color;
-                        }
-                        if(cell(x, y - 1).alive_now) {
-                            inherited_color += cell(x, y - 1).color;
-                        }
-                        if(cell(x, y + 1).alive_now) {
-                            inherited_color += cell(x, y + 1).color;
-                        }
-                        if(cell(x + 1, y - 1).alive_now) {
-                            inherited_color += cell(x + 1, y - 1).color;
-                        }
-                        if(cell(x + 1, y).alive_now) {
-                            inherited_color += cell(x + 1, y).color;
-                        }
-                        if(cell(x + 1, y + 1).alive_now) {
-                            inherited_color += cell(x + 1, y + 1).color;
-                        }
+                        // 0.0 itself is a color, so we must keep track of the first inheritance
+                        // it should just copy the color the first time and average the color every other time
+                        double inherited_color = 0.0;
+                        bool color_undefined = true;
+
+                        // some ugly macro functions to minimize code duplication
+                        #define inherit_color(from) do { \
+                            if(from.alive_now) { \
+                                if(color_undefined) { \
+                                    inherited_color = from.color; \
+                                    color_undefined = false; \
+                                } else { \
+                                    inherited_color = average_hue(inherited_color, from.color); \
+                                } \
+                            } \
+                        } while ( false )
+
+                        // inheriting color from every neighbour
+                        inherit_color(cell(x - 1, y - 1));
+                        inherit_color(cell(x - 1, y));
+                        inherit_color(cell(x - 1, y + 1));
+                        inherit_color(cell(x, y - 1));
+                        inherit_color(cell(x, y + 1));
+                        inherit_color(cell(x + 1, y - 1));
+                        inherit_color(cell(x + 1, y));
+                        inherit_color(cell(x + 1, y + 1));
 
                         // random mutation in any direction
                         double mutation = max_cell_mutation * rand() / RAND_MAX - ( max_cell_mutation / 2 );
-                        inherited_color = inherited_color / neighbours_alive + mutation;
-
-                        // ensuring the color is in the 0..1 interval
-                        while (inherited_color > 1) {
-                            inherited_color -= 1;
-                        }
+                        inherited_color = from_0_to_1(inherited_color + mutation);
 
                         cell(x, y).color = inherited_color;
                     }

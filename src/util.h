@@ -22,4 +22,7 @@ typedef struct
 HSV RGB2HSV(RGB in);
 RGB HSV2RGB(HSV in);
 
+double from_0_to_1(double value);
+double average_hue(double hue1, double hue2);
+
 #endif /* UTIL_H */
