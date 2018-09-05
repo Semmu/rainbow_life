@@ -7,6 +7,7 @@
 #include "util.h"
 #include "board.h"
 #include "window.h"
+#include "timer.h"
 
 int main(int argc, char const *argv[])
 {
@@ -25,16 +26,18 @@ int main(int argc, char const *argv[])
     });
 
     RainbowLife::Window window;
-    RainbowLife::Board board(window.getSurface(), 192, 108, 4);
+    RainbowLife::Board board(window.getSurface(), 1920, 1080, 0);
 
     bool running = true;
     SDL_Event e;
     size_t mouseX{0}, mouseY{0};
     bool simulate{true};
     int latest_simulation = SDL_GetTicks(),
-        simulation_gap = 100;
+        simulation_gap = 1;
     const int max_simulation_gap = 1000,
               simulation_gap_delta = 20;
+
+    Timer timer;
 
     while (running)
     {
@@ -88,14 +91,17 @@ int main(int argc, char const *argv[])
             }
         }
 
-        if (simulate) {
-            if (static_cast<int>(SDL_GetTicks()) - latest_simulation > simulation_gap) {
-                board.tick();
-                latest_simulation = SDL_GetTicks();
-            }
-        }
+        timer.start();
+        board.tick();
+        timer.stop();
+        log("tick took ", timer.duration(), "ms");
+        // if (simulate) {
+        //     if (static_cast<int>(SDL_GetTicks()) - latest_simulation > simulation_gap) {
+        //         board.tick();
+        //         latest_simulation = SDL_GetTicks();
+        //     }
+        // }
 
-        board.render();
 
         SDL_Rect mouse_rect;
         mouse_rect.x = mouseX;
@@ -103,7 +109,11 @@ int main(int argc, char const *argv[])
         mouse_rect.w = mouse_rect.h = 20;
         //SDL_FillRect(window.getSurface(), &mouse_rect, SDL_makeColor(255, 255, 255));
 
+        timer.start();
+        board.render();
         window.update();
+        timer.stop();
+        log("render took ", timer.duration(), "ms");
 
         SDL_Delay(1);
     }
