@@ -13,7 +13,9 @@ namespace RainbowLife {
         cell_padding(cell_padding),
         table(table_height, std::vector<Cell>(table_width, nullCell)),
         nullCell{0.0, false, false},
-        hoveredCell{&nullCell}
+        hoveredCell{&nullCell},
+        cursorEnabled{true},
+        cursorPainting{NOT_PAINTING}
     {
         if (static_cast<int>(table_width * (1 + cell_padding) - cell_padding) > destination_surface->w) {
             throw std::runtime_error(::std::string("Insufficent surface width for cell table!\n") +
@@ -151,7 +153,7 @@ namespace RainbowLife {
         }
     }
 
-    void Board::setMouseCoordinates(size_t x, size_t y) {
+    void Board::setCursorCoordinates(size_t x, size_t y) {
         if (x > padding_left &&
             x < destination_surface->w - padding_left &&
             y > padding_top &&
@@ -163,8 +165,25 @@ namespace RainbowLife {
 
             hoveredCell = &cell(x_index, y_index);
 
+            paint();
+
         } else {
             hoveredCell = &nullCell;
+        }
+    }
+
+    void Board::toggleCursor() {
+        cursorEnabled = !cursorEnabled;
+    }
+
+    void Board::setPaintingMode(PaintingMode mode) {
+        cursorPainting = mode;
+        paint();
+    }
+
+    void Board::paint() {
+        if (cursorEnabled && hoveredCell != &nullCell && cursorPainting != NOT_PAINTING) {
+            hoveredCell->alive_now = (cursorPainting == PAINTING_ALIVE);
         }
     }
 
@@ -193,7 +212,7 @@ namespace RainbowLife {
                     highlight_color = color_table[color_index];
                 }
 
-                if (hoveredCell == &cell(x, y)) {
+                if (cursorEnabled && hoveredCell == &cell(x, y)) {
                     SDL_FillRect(destination_surface, &highlight_rect, highlight_color);
                 }
                 SDL_FillRect(destination_surface, &cell_rect, cell_color);

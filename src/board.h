@@ -5,19 +5,22 @@
 #include <vector>
 
 namespace RainbowLife {
-    class Board
-    {
+    class Board {
     public:
-        struct Cell
-        {
+        struct Cell {
             // hue, 0-1 interval
             double color;
 
             bool alive_now;
             bool alive_next_tick;
         };
+        enum PaintingMode {
+            NOT_PAINTING,
+            PAINTING_ALIVE,
+            PAINTING_DEAD
+        };
 
-    private:
+      private:
         // provided
         SDL_Surface *destination_surface;
         size_t table_width, table_height, cell_padding;
@@ -28,7 +31,11 @@ namespace RainbowLife {
         // cells
         std::vector<std::vector<Cell>> table;
         Cell nullCell;
+
+        // cursor
         Cell* hoveredCell;
+        bool cursorEnabled;
+        PaintingMode cursorPainting;
 
         // mutation on cell birth
         const double max_cell_mutation = 0.05;
@@ -49,7 +56,10 @@ namespace RainbowLife {
         void randomize(size_t ratio = 5);
         void tick();
 
-        void setMouseCoordinates(size_t x, size_t y);
+        void setCursorCoordinates(size_t x, size_t y);
+        void toggleCursor();
+        void setPaintingMode(PaintingMode mode);
+        void paint();
 
         void render();
     };

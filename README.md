@@ -19,8 +19,7 @@ make
 
 (for my own notes)
 
-* mouse toggling
-* cell toggling with cursor click
+* dead cell rendering
 * toggle board wrap
 * render board in pattern if wrap is enabled
 * usage screen (which button does what), status display (speed, size, etc)

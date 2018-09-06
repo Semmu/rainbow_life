@@ -30,8 +30,7 @@ int main(int argc, char const *argv[])
 
     bool running = true;
     SDL_Event e;
-    size_t mouseX{0}, mouseY{0};
-    bool simulate{true};
+    bool simulate{true}, before_painting_state{true};
     int latest_simulation = SDL_GetTicks(),
         simulation_gap = 100;
     const int max_simulation_gap = 1000,
@@ -74,6 +73,10 @@ int main(int argc, char const *argv[])
                             simulation_gap = simulation_gap + simulation_gap_delta < max_simulation_gap ? simulation_gap + simulation_gap_delta : max_simulation_gap;
                         } break;
 
+                        case SDLK_c: {
+                            board.toggleCursor();
+                        } break;
+
                         case SDLK_ESCAPE: {
                             running = false;
                         } break;
@@ -83,9 +86,25 @@ int main(int argc, char const *argv[])
                 } break;
 
                 case SDL_MOUSEMOTION: {
-                    mouseX = e.motion.x;
-                    mouseY = e.motion.y;
-                    board.setMouseCoordinates(mouseX, mouseY);
+                    board.setCursorCoordinates(e.motion.x, e.motion.y);
+                } break;
+
+                case SDL_MOUSEBUTTONDOWN: {
+                    before_painting_state = simulate;
+
+                    if (e.button.button == SDL_BUTTON_LEFT) {
+                        board.setPaintingMode(RainbowLife::Board::PAINTING_ALIVE);
+                    }
+                    if (e.button.button == SDL_BUTTON_RIGHT) {
+                        board.setPaintingMode(RainbowLife::Board::PAINTING_DEAD);
+                    }
+
+                    simulate = false;
+                } break;
+
+                case SDL_MOUSEBUTTONUP: {
+                    simulate = before_painting_state;
+                    board.setPaintingMode(RainbowLife::Board::NOT_PAINTING);
                 } break;
 
                 default: break;
@@ -101,12 +120,6 @@ int main(int argc, char const *argv[])
                 latest_simulation = SDL_GetTicks();
             }
         }
-
-
-        SDL_Rect mouse_rect;
-        mouse_rect.x = mouseX - 2;
-        mouse_rect.y = mouseY - 2;
-        mouse_rect.w = mouse_rect.h = 4;
 
         // timer.start();
         board.render();
