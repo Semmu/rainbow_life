@@ -19,8 +19,7 @@ make
 
 (for my own notes)
 
-* precalculated hue -> color table (for performance gainz? may not worth it tho)
-* cell selection on mouse hover
+* mouse toggling
 * cell toggling with cursor click
 * toggle board wrap
 * render board in pattern if wrap is enabled
