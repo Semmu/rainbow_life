@@ -19,7 +19,8 @@ make
 
 (for my own notes)
 
-* dead cell rendering
+* random color on painting
+* existing cell color randomization
 * toggle board wrap
 * render board in pattern if wrap is enabled
 * usage screen (which button does what), status display (speed, size, etc)

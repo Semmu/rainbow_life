@@ -77,6 +77,10 @@ int main(int argc, char const *argv[])
                             board.toggleCursor();
                         } break;
 
+                        case SDLK_d: {
+                            board.toggleDeadCellVisibility();
+                        } break;
+
                         case SDLK_ESCAPE: {
                             running = false;
                         } break;

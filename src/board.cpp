@@ -13,6 +13,7 @@ namespace RainbowLife {
         cell_padding(cell_padding),
         table(table_height, std::vector<Cell>(table_width, nullCell)),
         nullCell{0.0, false, false},
+        deadCellsVisible{false},
         hoveredCell{&nullCell},
         cursorEnabled{true},
         cursorPainting{NOT_PAINTING}
@@ -187,23 +188,33 @@ namespace RainbowLife {
         }
     }
 
+    void Board::toggleDeadCellVisibility() {
+        deadCellsVisible = !deadCellsVisible;
+    }
+
     void Board::render() {
         SDL_FillRect(destination_surface, NULL, 0);
 
         Uint32 cell_color, highlight_color;
         size_t color_index;
-        SDL_Rect cell_rect, highlight_rect;
+        SDL_Rect cell_rect, highlight_rect, dead_cell_rect;
         cell_rect.w = cell_rect.h = cell_size;
         highlight_rect.w = highlight_rect.h = cell_size + 2;
+        dead_cell_rect.w = dead_cell_rect.h = 2;
 
         for (size_t y = 0; y < table_height; y++) {
             for (size_t x = 0; x < table_width; x++) {
                 cell_rect.x = padding_left + x * (cell_size + cell_padding);
                 cell_rect.y = padding_top + y * (cell_size + cell_padding);
+                dead_cell_rect.x = cell_rect.x + cell_size / 2 - 1;
+                dead_cell_rect.y = cell_rect.y + cell_size / 2 - 1;
                 highlight_rect.x = cell_rect.x - 1;
                 highlight_rect.y = cell_rect.y - 1;
 
                 color_index = cell(x, y).color * precomputed_colors;
+
+                // the logic below should be rewritten, its kinda messy
+
                 if (cell(x, y).alive_now) {
                     cell_color = color_table[color_index];
                     highlight_color = color_white;
@@ -215,7 +226,14 @@ namespace RainbowLife {
                 if (cursorEnabled && hoveredCell == &cell(x, y)) {
                     SDL_FillRect(destination_surface, &highlight_rect, highlight_color);
                 }
-                SDL_FillRect(destination_surface, &cell_rect, cell_color);
+
+                if (cell(x, y).alive_now) {
+                    SDL_FillRect(destination_surface, &cell_rect, cell_color);
+                }
+
+                if (deadCellsVisible) {
+                    SDL_FillRect(destination_surface, &dead_cell_rect, color_table[color_index]);
+                }
             }
         }
     }

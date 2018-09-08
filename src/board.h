@@ -31,6 +31,7 @@ namespace RainbowLife {
         // cells
         std::vector<std::vector<Cell>> table;
         Cell nullCell;
+        bool deadCellsVisible;
 
         // cursor
         Cell* hoveredCell;
@@ -61,6 +62,7 @@ namespace RainbowLife {
         void setPaintingMode(PaintingMode mode);
         void paint();
 
+        void toggleDeadCellVisibility();
         void render();
     };
 }
