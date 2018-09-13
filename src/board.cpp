@@ -14,6 +14,7 @@ namespace RainbowLife {
         table(table_height, std::vector<Cell>(table_width, nullCell)),
         nullCell{0.0, false, false},
         deadCellsVisible{false},
+        wrap{true},
         hoveredCell{&nullCell},
         cursorEnabled{true},
         cursorPainting{NOT_PAINTING}
@@ -68,6 +69,10 @@ namespace RainbowLife {
         color_black = SDL_MapRGB(destination_surface->format, 0, 0, 0);
     }
 
+    void Board::toggleWrap() {
+        wrap = !wrap;
+    }
+
     void Board::clear() {
         for (size_t y = 0; y < table_height; y++) {
             for (size_t x = 0; x < table_width; x++) {
@@ -96,12 +101,27 @@ namespace RainbowLife {
 
     // cell selection with coordinates
     Board::Cell& Board::cell(int x, int y) {
-        // bounds check
-        if (x < 0 || x > static_cast<int>(table_width - 1) || y < 0 || y > static_cast<int>(table_height - 1)) {
-            return nullCell;
+        if (!wrap) {
+            if (x < 0 || x > static_cast<int>(table_width - 1) || y < 0 || y > static_cast<int>(table_height - 1)) {
+                return nullCell;
+            } else return table[y][x];
+        } else {
+            if (x < 0) {
+                x += table_width;
+            }
+            if (x >= static_cast<int>(table_width)) {
+                x = x % table_width;
+            }
+            if (y >= static_cast<int>(table_height)) {
+                y = y % table_height;
+            }
+            if (y < 0) {
+                y += table_height;
+            }
+            return table[y][x];
         }
 
-        return table[y][x];
+
     }
 
     Board::Cell& Board::operator()(int x, int y) {
@@ -213,7 +233,7 @@ namespace RainbowLife {
         SDL_FillRect(destination_surface, NULL, 0);
 
         size_t color_index;
-        Uint32 highlight_color, cell_color, dead_cell_color;
+        Uint32 highlight_color, cell_color;
 
         SDL_Rect highlight_rect,
                  cell_rect,

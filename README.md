@@ -19,9 +19,6 @@ make
 
 (for my own notes)
 
-* random color on painting
-* existing cell color randomization
-* toggle board wrap
 * render board in pattern if wrap is enabled
 * usage screen (which button does what), status display (speed, size, etc)
 * cell and board "rework" (cells shouldnt next tick state, there should be 2 boards instead, switching active and next on tick) (a basic test version of this did not perform better, should figure out more ways to optimize, for example with a precomputed color map)

@@ -89,6 +89,10 @@ int main(int argc, char const *argv[])
                             board.toggleDeadCellVisibility();
                         } break;
 
+                        case SDLK_w: {
+                            board.toggleWrap();
+                        } break;
+
                         case SDLK_ESCAPE: {
                             running = false;
                         } break;

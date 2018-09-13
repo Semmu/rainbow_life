@@ -31,7 +31,8 @@ namespace RainbowLife {
         // cells
         std::vector<std::vector<Cell>> table;
         Cell nullCell;
-        bool deadCellsVisible;
+        bool deadCellsVisible,
+             wrap;
 
         // cursor
         Cell* hoveredCell;
@@ -54,6 +55,7 @@ namespace RainbowLife {
         Cell& cell(int x, int y);
         Cell& operator()(int x, int y);
 
+        void toggleWrap();
         void clear();
         void randomizeBoard(size_t fillRatio = 5);
         void randomizeColors();
