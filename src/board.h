@@ -54,7 +54,9 @@ namespace RainbowLife {
         Cell& cell(int x, int y);
         Cell& operator()(int x, int y);
 
-        void randomize(size_t ratio = 5);
+        void clear();
+        void randomizeBoard(size_t fillRatio = 5);
+        void randomizeColors();
         void tick();
 
         void setCursorCoordinates(size_t x, size_t y);

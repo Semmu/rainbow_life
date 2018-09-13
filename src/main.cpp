@@ -57,8 +57,16 @@ int main(int argc, char const *argv[])
                             board.tick();
                         } break;
 
+                        case SDLK_n: {
+                            board.clear();
+                        } break;
+
                         case SDLK_r: {
-                            board.randomize(5);
+                            board.randomizeBoard(5);
+                        } break;
+
+                        case SDLK_g: {
+                            board.randomizeColors();
                         } break;
 
                         case SDLK_a: {
